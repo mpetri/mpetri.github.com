@@ -1,1 +1,358 @@
-test
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Compressed Suffix Trees for Machine Translation</title>
+
+		<meta name="author" content="Matthias Petri">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/simple.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h3>Compressed Suffix Trees for Machine Translation</h3>
+					<p>
+					<small><a href="http://www.cis.unimelb.edu.au/people/staff.php?person_ID=637803">Matthias Petri</a> </br> The University of Melbourne </br></br>
+					joint work with Ehsan Shareghi, Gholamreza Haffari and Trevor Cohn
+					</small>
+					</p>
+				</section>
+
+				<section>
+					<h2>Machine Translation</h2>
+					<p>
+						Use computational resources to translate a sentence from a source language to a target language.
+					</p>
+				</section>
+
+				<section>
+					<h2>Resources</h2>
+					<ul>
+						<li>Parallel Text Corpus
+						<ul>
+							<li>Wikipedia headlines in multiple languages</li>
+							<li>European Parliament or UN transcripts</li> 
+						</ul>
+						</li>
+						<li>Large Text Corpus in the target language</li>
+						<li>Lots of data sets available for free http://www.statmt.org/wmt15/translation-task.html
+						</li>
+					</ul>
+				</section>
+				
+				<section>
+					<section>
+					<h2>Translation Process</h2>
+					 <p>Given a Source sentence find a translation (the Target) that has the maximum probability given the source sentence:</p><br>
+		             <p>
+		                $$P(\text{ Target }| \text{ Source }) \propto \frac{P(Target) \times P( \text{ Source } |  \text{ Target })}{P(Source)}$$ 
+		             </p>
+		             </section>
+
+		             <section>
+		             	<h3>P(Source | Target)</h3>
+		             	<p>Find probable candidates using the Parallel Corpus</p>
+
+					<table>
+						<thead>
+							<tr>
+								<th>Language A</th>
+								<th>Language B</th>
+								<th>Word Alignment</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>lo que [X,1] que los</td>
+								<td>the [X,1] that the</td>
+								<td>0-0 1-2 3-2 4-3</td>
+							</tr>
+							<tr>
+								<td>lo que [X,1] que los </td>
+								<td>this [X,1] that the</td>
+								<td>0-0 3-2 4-3</td>
+							</tr>
+							<tr>
+								<td>lo que [X,1] que los</td>
+								<td>which [X,1] the</td>
+								<td>0-0 1-0 4-2</td>
+							</tr>
+						</tbody>
+					</table>
+		             </section>
+
+
+		             <section>
+		             	<h3>P(Target)</h3>
+		             	<p>For each candidate sentence, use the text statistics of the monolingual corpus (a Language Model) to determine the "best" translation</p>
+		             </section>
+				</section>
+
+				<section>
+					<section>
+						<h3>q-gram Language Modeling</h3>
+						<p>
+							Assign a probability to a sequence of words \(w^n_1\)
+							indicating how likely the sequence is, given a language:
+						</p>
+						$$
+						P(w^n_1) = \prod_{i=1}^n P(w_i|w_{i-q+1}^{i-1})
+						$$
+						<br>where
+						$$
+							w^n_1 = S[1..n] \text{   and   } w^j_i = S[i..j]
+						$$
+
+					</section>
+					<section>
+						<h3>Example (q=3)</h3>
+						<p>
+						$$
+						P(\text{ the old night keeper keeps the keep in the town }) = \\
+						P(\text{ the} ) \\
+						\times P(\text{ old }|\text{ the }) \\
+						\times P(\text{ night }|\text{ the old }) \\
+						\times P(\text{ keeper }|\text{ the old night }) \\
+						\times P(\text{ keeps }|\text{ old night keeper }) 
+						\times P(\text{ the }|\text{ night keeper keeps }) 
+						\times P(\text{ keep }|\text{ keeper keeps the }) 
+						\times P(\text{ in }|\text{ keeps the keep }) 
+						\times P(\text{ the }|\text{ the keep in }) 
+						\times P(\text{ town }|\text{ keep in the })
+						$$
+						</p>
+					</section>
+				</section>
+
+				<section>
+					<h3>Kneser-Ney Language Modeling</h3>
+					<p>Highest Level:</p>
+					$$
+					P(w_i|w_{i-q+1}^{i-1})=\frac{max(C(w_{i-q+1}^i))−D_q,0)}{C(w_{i-q+1}^{i-1})} + \frac{D_k N_{1+}(w_{i-q+1}^{i-1} \bullet )}{C(w_{i-q+1}^{i-1})} P(w_i|w_{i-n+2}^{i-1})
+					$$
+					<p>
+					Middle Level (\(1 < k < n\)):</p>
+					$$
+					P(w_i|w_{i-k+1}^{i-1})=\frac{max(N_{1+}(\bullet w_{i-k+1}^i))−D_k,0)}{N_{1+}(\bullet w_{i-k+1}^{i-1}\bullet)} + \frac{D_k N_{1+}(w_{i-k+1}^{i-1} \bullet )}{N_{1+}(\bullet w_{i-k+1}^{i-1}\bullet)} P(w_i|w_{i-k+2}^{i-1})
+					$$
+					
+					<p>Lowest Level:</p>
+					$$
+					P(w_i) = \frac{N_{1+}(\bullet w_{i})}{N_{1+}(\bullet \bullet)}
+					$$
+					
+				</section>
+
+				<section>
+					<section>
+					<h2>Terminology</h2>
+					<ul>
+						<li class="fragment">\(C(w_{i}^j)\): Standard count of \(S[i..j]\) in the corpus</li>
+						<li class="fragment">\(N_{1+}(\bullet \alpha) = |\{w: c(w \alpha)>0\}|\) 
+is the number of observed word types preceding the pattern \(\alpha = w_{i}^j\)</li>
+						<li class="fragment">\(N_{1+}(w_{i}^j \bullet ) = |\{w: c(\alpha w)>0\}|\) 
+is the number of observed word types following the pattern \(\alpha\)</li>
+						<li class="fragment">\(N_{1+}(\bullet w_{i}^j \bullet)\): the number of unique contexts (left and right) where \(w_{i}^j\) occurs</li>
+						<li class="fragment">\(D_i\): Discount parameter for the recursion computed at index construction time</li>
+						<li class="fragment">\(N_{1+}(\bullet \bullet)\): Number of unique bi-grams</li>
+					</ul>
+					</section>
+					<section>
+					<ul>
+						<li>\(N_{1}(\alpha \bullet) = |\{w: c(\alpha w)==1\}|\) 
+is the number of observed word types preceding the pattern \(\alpha = w_{i}^j\) that occur exactly once</li>
+						<li>\(N_{2}(\alpha  \bullet) = |\{w: c(\alpha w)==2\}|\) 
+is the number of observed word types preceding the pattern \(\alpha = w_{i}^j\) that occur exactly two times</li>
+						<li>\(N_{3+}(\alpha \bullet ) = |\{w: c(\alpha w)\geq3\}|\) 
+is the number of observed word types following the pattern \(\alpha\) that occur at least 3 times</li>
+					</ul>
+					</section>
+				</section>
+
+				<section>
+				<h3>ARPA Files</h3>
+				<img width="80%" src="arpa.png" style="background:none; border:none; box-shadow:none;"/>
+				</section>
+
+				<section>
+				<h3>ARPA based Language Models</h3>
+				<img width="80%" src="arpa2.png" style="background:none; border:none; box-shadow:none;"/>
+				</section>
+
+
+				<!-- Example of nested vertical slides -->
+				<section>
+					<h2>Instead of precomputation can we compute probabilities on the fly using Compressed Suffix Trees?</h2>
+					
+				</section>
+
+				<section>
+					<h2>Advantages</h2>
+					<ul>
+						<li>No restriction in recursion depth results in better probability estimates
+						</li>
+						<li>
+						Current approaches prestore use space exponential in q 
+						</li>
+						<li>
+						Construction of a CST is faster than precomputing all probabilities
+						</li>
+						<li>
+						Can operate on words and character alphabets (need larger q to be useful)
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Use 2 CSTs over the text and reverse text</h2>
+					<img width="80%" src="A1.png" style="background:none; border:none; box-shadow:none;"/>
+				</section>
+
+				<section>
+					<h3>Kneser-Ney Language Modeling</h3>
+				<img width="100%" src="KN.png" style="background:none; border:none; box-shadow:none;"/>
+					<p>
+						Perform backward search and keep track of dependencies
+					</p>
+				</section>
+
+				<section>
+					<h2>Computing \(N_{1+}(\bullet w_{i}^j \bullet)\)</h2>
+					<p>Naive Approach: (Expensive!)
+					<ol>
+						<li>Find the set S of all symbols preceding \(w_{i}^j\)</li>
+						<li>For each \(\alpha \in S\) determine \(N_{1+}(\alpha w_{i}^j \bullet)\)</li>
+						<li>Sum over all \(\alpha\)</li>
+					</ol>
+					</p>
+				</section>
+
+				<section>
+					<h3>Only use one wavelet tree based CST over the text</h1>
+					<ul>
+						<li>\(N_{1+}(w_{i}^j \bullet)\) computed as before using the CST
+						</li>
+						<li>
+						\(N_{1+}( \bullet w_{i}^j)\): For the range \([sp,ep]\) of the pattern use the wavelet tree to visit all leaves in \(BWT[sp,ep]\). (Interval Symbols in SDSL)
+						</li>
+						<li>
+						\(N_{1+}( \bullet w_{i}^j  \bullet )\): Visiting all leaves in \(BWT[sp,ep]\) implicitly computes all Weiner Links of the CST node corresponding to \(w_{i}^j\) as all [sp,ep] ranges of all \(\bullet w_{i}^j\) are computed during the wavelet tree traversal.
+						</li>
+						<li>
+						Determine number of children of the determined nodes to compute \(N_{1+}( \bullet w_{i}^j  \bullet )\).
+						</li>
+					</ul>
+				</section>
+
+				<section>
+					<h3>Other Considerations<h3>
+					<ul>
+						<li>Special case when pattern search ends in the middle of an edge in the CST
+						</li>
+						<li>
+						Special handling of start and end of sentence tags which can mess up the correct counts
+						</li>
+						<li>
+						Ensure correctness by comparing to state-of-the-art systems (KenLM and SRILM)
+						</li>
+					</ul>
+				</section>
+
+				<section>
+				<h3>Construction and Query Time<h3>
+					<img width="80%" src="R1.png" style="background:none; border:none; box-shadow:none;"/>
+				</section>
+
+				<section>
+				<h3>Query Time Breakdown<h3>
+					<img width="80%" src="R2.png" style="background:none; border:none; box-shadow:none;"/>
+				</section>
+
+
+				<section>
+					<h2>Future Work</h2>
+					<ul>
+						<li>Precomputing some of the counts is very cheap and speeds up query processing significantly</li>
+						<li>Alphabet-Partitioning for larger alphabets (requires interval symbols)</li>
+						<li>Already competitive to state-of-the-art implementations</li>
+						<li>Backward Search now main cost factor</li>
+						<li>Lots of open problems in the MT field where succinct structures could be applied to</li>
+						<li>Easy entry as test collections and software are freely available</li>
+					</ul>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				minScale: 0.05,
+    			maxScale: 1.0,
+
+				transition: 'none', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+		<script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'>
+		</script>
+
+<script type="text/x-mathjax-config"> 
+    MathJax.Hub.Config({ 
+        "HTML-CSS": { scale: 70, linebreaks: { automatic: true } }, 
+        SVG: { linebreaks: { automatic:true } }, 
+        displayAlign: "center" });
+</script>
+
+	</body>
+</html>
