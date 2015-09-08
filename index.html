@@ -73,9 +73,9 @@
 				<section>
 					<section>
 					<h2>Translation Process</h2>
-					 <p>Given a Source sentence find a translation (the Target) that has the maximum probability given the source sentence:</p><br>
+					 <p>Given a Source sentence find a translation (the Target) that has the highest probability given the source sentence:</p><br>
 		             <p>
-		                $$P(\text{ Target }| \text{ Source }) \propto \frac{P(Target) \times P( \text{ Source } |  \text{ Target })}{P(Source)}$$ 
+		                $$P(\text{ Target }| \text{ Source }) = \frac{P(Target) \times P( \text{ Source } |  \text{ Target })}{P(Source)}$$ 
 		             </p>
 		             </section>
 
@@ -143,12 +143,12 @@
 						\times P(\text{ old }|\text{ the }) \\
 						\times P(\text{ night }|\text{ the old }) \\
 						\times P(\text{ keeper }|\text{ the old night }) \\
-						\times P(\text{ keeps }|\text{ old night keeper }) 
-						\times P(\text{ the }|\text{ night keeper keeps }) 
-						\times P(\text{ keep }|\text{ keeper keeps the }) 
-						\times P(\text{ in }|\text{ keeps the keep }) 
-						\times P(\text{ the }|\text{ the keep in }) 
-						\times P(\text{ town }|\text{ keep in the })
+						\times P(\text{ keeps }|\text{ old night keeper }) \\
+						\times P(\text{ the }|\text{ night keeper keeps }) \\
+						\times P(\text{ keep }|\text{ keeper keeps the }) \\
+						\times P(\text{ in }|\text{ keeps the keep }) \\
+						\times P(\text{ the }|\text{ the keep in })  \\
+						\times P(\text{ town }|\text{ keep in the }) \\
 						$$
 						</p>
 					</section>
