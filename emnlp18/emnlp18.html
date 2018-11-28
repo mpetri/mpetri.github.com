@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EMNLP'18 Review</title>
+    <meta charset="utf-8">
+    <style>
+.left-column50 {
+      width: 50%;
+      float: left;
+}
+.large { font-size: 1.2em; }
+.right-column50 {
+      width: 48%;
+      float: right;
+      }
+      .authors { color: #3366ff; }
+      .inverse {
+        background: #272822;
+        color: #777872;
+        text-shadow: 0 0 20px #333;
+      }
+      .inverse h1, .inverse h2 {
+        color: #f3f3f3;
+        line-height: 0.8em;
+      }
+
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body {
+        font-family: 'Droid Serif';
+      }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: 400;
+        margin-bottom: 0;
+      }
+      li p { line-height: 1.75em; }
+      .remark-slide-content h1 { font-size: 3em; }
+      .remark-slide-content h2 { font-size: 2em; }
+      .remark-slide-content h3 { font-size: 1.6em; }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+background-image: url(00.png)
+
+---
+
+# General
+
+- ~2500 attendees. Very packed!
+
+- Elmo plush toy in the conference bag
+
+- Awesome conference dinner in the museum
+
+![:scale 60%](2.jpg)
+
+---
+class: center, middle
+
+# Tutorials 
+
+![:scale 60%](1.png)
+
+Pytorch based, NLP specific toolkit, Tensorboard, DataReaders, Reproducibility, Fast prototyping
+
+---
+
+### A Call for Clarity in Reporting BLEU Scores 
+.authors[Matt Post] - WMT18
+
+.large[
+> The field of machine translation faces an
+under-recognized problem because of inconsistency
+in the reporting of scores from its
+dominant metric. Although people refer to
+“the” BLEU score, BLEU is in fact a parameterized
+metric whose values can vary wildly
+with changes to these parameters. These parameters
+are often not reported or are hard
+to find, and consequently, BLEU scores between
+papers cannot be directly compared. I
+quantify this variation, ** finding differences as
+high as 1.8 between commonly used configurations**.
+The main culprit is different tokenization
+and normalization schemes applied to the
+reference. Pointing to the success of the parsing
+community, I suggest machine translation
+researchers settle upon the BLEU scheme used
+by the annual Conference on Machine Translation
+(WMT), which does not allow for user supplied
+reference processing, and provide a
+new tool, **SACREBLEU** to facilitate this.
+]
+
+- Link to [poster](https://mjpost.github.io/papers/sacrebleu_poster.pdf)
+
+
+---
+
+## WMT18 
+
+Parallel Corpus Filtering
+
+- Specifically, we provide a **very noisy 1 billion word** (English token count) German-English corpus crawled from the web as part of the Paracrawl project. We ask participants to **subselect sentence pairs that amount to (a) 100 million words, and (b) 10 million words**. 
+
+- Effective Parallel Corpus Mining using Bilingual Sentence Embeddings (.authors[Guo et al. - Google])
+
+- Dual Conditional Cross-Entropy Filtering of Noisy Parallel Corpora
+(.authors[Marcin Junczys-Dowmunt]) Best Results - 2 MT models for filtering) - **WMT18-full 33.9 BLEU + Filtered Data = 36.0 BLEU**
+
+- Lots of other submissions which do feature engineering
+
+NEWS
+
+- Backtranslate everything with 128 GPUs
+
+
+---
+
+### SentencePiece: A simple and language independent subword tokenizer and detokenizer for NLP. 
+
+.authors[Taku Kudo and John Richardson]
+
+Normalizer, Trainer, Encoder, and Decoder for tokenization. 
+
+![:scale 40%](5.png)
+
+---
+
+### MTNT: A Testbed for Machine Translation of Noisy Text. 
+
+.authors[Paul Michel and Graham Neubig]
+
+Reddit based corpus with 15k comments (multi sentence) reference translations (en-fr/ja). Emojis, slang, jargon, code switching...
+
+.left-column50[![:scale 70%](3.png)]
+.right-column50[![:scale 60%](4.png)]
+
+---
+
+### XNLI: Evaluating Cross-lingual Sentence Representations. 
+
+.authors[Alexis Conneau, Ruty Rinott, Guillaume Lample, Adina Williams, Samuel Bowman, Holger Schwenk and Veselin Stoyanov]
+
+.large[
+> "...there has been a growing interest in crosslingual language understanding (XLU) and low-resource cross-language transfer. In this work, we construct an evaluation set for XLU by extending the development and test sets of the Multi-Genre Natural Language Inference Corpus (MultiNLI) to 15 languages, including low-resource languages such as Swahili and Urdu...."
+]
+
+---
+
+### Learning Neural Templates for Text Generation. 
+
+.authors[Sam Wiseman, Stuart Shieber and Alexander Rush]
+
+
+NLG, End2End, Differentiate through DP (backward algorithm), Viterbi to extract templates from training data.
+
+
+.left-column50[![:scale 90%](6.png)]
+.right-column50[![:scale 90%](7.png)]
+
+
+---
+
+## Rational Recurrences. 
+
+.authors[Hao Peng, Roy Schwartz, Sam Thomson and Noah A. Smith]
+
+---
+
+### Gromov-Wasserstein Alignment of Word Embedding Spaces.
+
+.authors[David Alvarez-Melis and Tommi Jaakkola]
+
+- Bidirectional Dictionary Induction (Unsupervised)
+
+- Align not by positional similarities but by relational similarities (distances matter NOT positions in space)
+
+![:scale 90%](8.png)
+
+---
+
+### Disfluency Detection using Auto-Correlational Neural Networks
+
+.authors[Paria Jamshid Lou, Peter Anderson, Mark Johnson]
+
+> **Disfluency** informally refers to any interruptions in the normal flow of speech, including false starts, corrections, repetitions and filled pauses.
+
+> In recent years, the natural language processing community has moved away from taskspecific feature engineering, i.e., researchers discovering ad-hoc feature representations for various tasks, in favor of general-purpose methods that learn the input representation by themselves. However, **state-of-the-art approaches to disfluency detection in spontaneous speech transcripts currently still depend on an array of hand-crafted features**, and other representations derived from the output of pre-existing systems such as language models or dependency parsers. As an alternative, this paper proposes **a simple yet effective model for automatic disfluency detection, called an auto-correlational neural network (ACNN)**. The model uses a **convolutional neural network (CNN) and augments it with a new auto-correlation operator at the lowest layer that can capture the kinds of “rough copy” dependencies that are characteristic of repair disfluencies** in speech. In experiments, the ACNN model outperforms the baseline CNN on a disfluency detection task with a 5% increase in f-score, which is close to the previous best result on this task.
+
+---
+
+### Linguistically-Informed Self-Attention for Semantic Role Labeling 
+
+.authors[Emma Strubell, Patrick Verga, Daniel Andor, David Weiss and Andrew McCallum]
+
+> Current state-of-the-art **semantic role labeling** (SRL) uses a deep neural network with no explicit linguistic features. However, prior work has shown that gold syntax trees can dramatically improve SRL decoding, suggesting the possibility of increased accuracy from explicit modeling of syntax. In this work, we present linguistically-informed self-attention (LISA): **a neural network model that combines multi-head self-attention with multi-task learning across dependency parsing, part-of speech tagging, predicate detection and SRL**.
+
+> Unlike previous models which require significant pre-processing to prepare linguistic features, **LISA can incorporate syntax using merely raw tokens as input, encoding the sequence only once to simultaneously perform parsing, predicate detection and role labeling for all predicates**. Syntax is incorporated by training one attention head to attend to syntactic parents for each token. Moreover, if a high-quality syntactic parse is already available, it can be beneficially injected at test time without re-training our SRL model.
+
+---
+
+### EMNLP'18 - other stuff
+
+- Multiple papers on better/fancier BEAM alternatives (which all only compare to BEAM and no other existing work...)
+
+- Why is unsupervised alignment of English embeddings from different algorithms so hard? .authors[Mareike Hartmann, Yova Kementchedjhieva and Anders Søgaard]
+
+- Generalizing Word Embeddings using Bag of Subwords. .authors[Jinman Zhao, Sidharth Mudgal and Yingyu Liang]. Embeddings for unknown words by learning avg(E(ban)E(ana)E(nan)E(ana)) == E(banana). No corpus needed. Trained in seconds.
+
+- Targeted Syntactic Evaluation of Language Models. .authors[Rebecca Marvin and Tal Linzen]
+
+- Loss in Translation: Learning Bilingual Word Mapping with a Retrieval Criterion. .authors[Armand Joulin, Piotr Bojanowski, Tomas Mikolov, Hervé Jégou and Edouard Grave]
+
+- Knowledge Graph Embedding with Hierarchical Relation Structure. .authors[Zhao Zhang, Fuzhen Zhuang, Meng Qu, Fen Lin and Qing He]
+
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+remark.macros.scale = function (percentage) {
+  var url = this;
+  return '<img src="' + url + '" style="width: ' + percentage + '" />';
+};
+
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
